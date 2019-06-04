@@ -1,68 +1,102 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+#  React
+1.  创建项目 Node >
+    npx create-react-app my-app
+    cd my-app
+    npm start
+    npx
 
-## Available Scripts
+2. 原理
+> react下面有一个方法 createElement 函数返回的是一个对象 这个对象就是我们说的虚拟dom
+```
+import React,{Component} from 'react'
+import React from 'react'
 
-In the project directory, you can run:
+let React = {
+    createElement(type,props,...children){
+        // console.log(arguments)
+        // 0:type     "h1" 
+        // 1:props    className:"red"
+        // 2:children "hello" span 
+        return {type,props,children}
+    }
+}
+```
+> ReactDom是一个对象 {render}对象的解构赋值
+```
+import ReactDom from 'react-dom'
+import ReactDom,{render} from 'react-dom'
 
-### `npm start`
+let jsxEle = 
+    // 通常来说 多行用括号表示是一个整体
+    (<h1 className="red">
+        hello
+        <span>world1</span>
+        <span>world2</span>
+    </h1>)
+// console.log(jsxEle)
+```
+> render方法 就是把虚拟dom 渲染成真实dom
+ReactDom.render() 解构赋值之后：
+```
+render(jsxEle,window.root)
+```
+原理：
+```
+function render(jsx,content){
+    let {type,props,children} = jsx;
+    // 如果是字符串 直接放在content里面
+    if(typeof jsx === 'string') return content.appendChild(document.createTextNode(jsx))
+    let ele = document.createElement(type) // 创建一个h1的元素
+    if(props){ // 包含class之类的属性
+        for(let key in props){
+            if(key === 'className'){
+                ele.setAttribute('class',props[key])
+            }
+            ele.setAttribute(key,props[key])
+        }
+        // children 的结果和ele的结构是一样 有可能也是对象 所以递归调用render方法
+        children.forEach(child => {
+            render(child,ele)
+        });
+        content.appendChild(ele)
+    }
+}
+render(jsxEle,window.root)
+```
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+3. 使用 Ant Design UI组件
+```
+npm install antd
+```
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+# redux
+- 使用redux 目的
+ > 在react中组件与组件之间的通信很麻烦，于是借用redux进行第三方的通信，通过把数据存储在store里，实现各个组件间快速通信
+- redux 基础
+1. 核心
+    - state：普通对象
+    - action：JS 普通对象，用来描述发生了什么，store 数据的唯一来源
+    - reducer：把 action 和 state 串起来。接收 state 和 action 作为参数，并返回新的 state 的函数。
+2. 三大原则
+    - 单一数据源：只存在唯一一个store
+    - state只读：唯一改变 state 的方法就是触发 action
+    - 使用纯函数进行修改：reducer
+3. 主要组件
+    - action
+    > 通过dispatch传递数据到store
+    - reducer
+    > 描述如何响应action更新state
+    - store
+    > 维持应用的 state；
+      提供 getState() 方法获取 state；
+      提供 dispatch(action) 方法更新 state；
+      通过 subscribe(listener) 注册监听器;
+      通过 subscribe(listener) 返回的函数注销监听器。
+4. 主要流程
+    - 创建store、reducer、初始的state
+    - store 的 dispatch(action) 传递 action 给 store，store 会自动转发给 reducer
+    - reducer 接收信息，并返回给 store 一个 newState
+5. 优化
+    - action的type由公共的actionTypes管理
+    - 将action封装成对象，写在actionCreator.js文件里
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
